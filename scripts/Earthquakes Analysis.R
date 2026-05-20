@@ -6,7 +6,6 @@
 
 # Load Packages ----
 # pacman stands for package manager..
-# p_load() 
 if (!require(pacman))
   install.packages("pacman") # if pacman doesnt exist on this machine install it
 pacman::p_load(
