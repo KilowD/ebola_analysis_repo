@@ -24,6 +24,10 @@ pacman::p_load(
   outbreaks    # collection of Disease Outbreak data
 )
 
+# Load data
+yaounde_data <- read_excel(here("data/yaounde_data.xlsx"))
+yaounde_data
+
 # DATA 1: Earthquakes dataset
 
 quakes

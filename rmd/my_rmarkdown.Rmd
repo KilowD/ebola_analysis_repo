@@ -31,8 +31,11 @@ pacman::p_load(
    )
 
 # load_data
-ebola_sierra_leone <- read.csv(here("data", "ebola_sierra_leone.csv"))
 
+yaounde_data <- read_excel(here("data/yaounde_data.xlsx"))
+ebola_sierra_leone <- read.csv(here("data", "ebola_sierra_leone.csv"))
+yaounde_data
+ebola_sierra_leone
 ```
 
 # Sierra_leone Ebola Cases by District
