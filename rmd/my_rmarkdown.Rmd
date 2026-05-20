@@ -1,58 +1,87 @@
 ---
 title: "Analysis"
-output: flexdashboard::flex_dashboard
+output: prettydoc::html_pretty #flexdashboard::flex_dashboard
 date: "2026-01-31"
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: console # display chunk output in console style instead of inline notebook style.
 ---
 
-```{r setup, include=FALSE}
-library(here)
-library(dplyr)
-library(inspectdf)
-knitr::opts_chunk$set(echo = TRUE)
-```
+```{r setup, include=FALSE, message=FALSE}  
+knitr::opts_chunk$set(echo = FALSE)  
+# Global chunk option:
+# settings defined here apply to all subsequent chunks unless overridden.
+# e.g echo = FALSE hides the R code and shows only the output/results. for all chunks
+# message = FALSE , to avoid package startup messages
 
-# Sierra_leone Ebola Cases by District
+if (!require(pacman))
+  install.packages("pacman") # if pacman doesnt exist on this machine install it
+pacman::p_load(
+  tidyverse, #meta-pakage , it loads other packages inside of it
+  inspectdf,
+  plotly,
+  janitor,
+  visdat,
+  esquisse,
+  here,
+  readxl, 
+  dplyr,
+  flextable,
+  gt,
+  reactable
+   )
 
-```{r load_data, include=FALSE}
+# load_data
 ebola_sierra_leone <- read.csv(here("data", "ebola_sierra_leone.csv"))
 
 ```
 
-```{r District_summary, echo=FALSE}
-district_tab <- janitor::tabyl(ebola_sierra_leone,district)
-district_tab_arranged <- arrange(district_tab,n)
-district_tab_arranged
+# Sierra_leone Ebola Cases by District
+
+**This table shows counts of cases by district:**
+
+```{r District_summary, echo=FALSE, warning=FALSE}
+district_tab <- janitor::tabyl(ebola_sierra_leone,district) # creates a table summary of cases(n) and proportions(%)
+district_tab_arranged <- district_tab %>%  # create a new object
+  rename(Ebola_cases = n)%>% # rename n to Ebola_cases
+  arrange(Ebola_cases)
+knitr::kable(district_tab_arranged) # knitr::kable() removes the ugly console-style ## output and gives you a proper HTML table.
+
+#Take district_tab, rename the column n to Ebola_cases, then sort by Ebola_cases, and save the final result into a new object called district_tab_arranged.
+
+
 ```
 
 # Categories Plot
 
-```{r categ_vars_plot, echo=FALSE}
-categ_vars_plot <- show_plot(inspectdf::inspect_cat(ebola_sierra_leone)) 
-categ_vars_plot
+**The visualization below shows the frequency distribution of categorical variables in the Ebola dataset.**
+
+```{r categ_vars_plot, echo=FALSE, fig.width=15,fig.align='left',warning=FALSE}
+categ_vars_plot <- show_plot(inspectdf::inspect_cat(ebola_sierra_leone)) +
+  labs(title = "Categorical Variables in Ebola Dataset")
+
+plotly::ggplotly(categ_vars_plot)
 ```
 
 # Sierra_leone Car Analysis
 
 **These are Sierra_leone favorite Cars:**
 
--   Toyota Prado
--   Mitsubishi Pajero
--   BMW X5
+- Toyota Prado
+- Mitsubishi Pajero
+- BMW X5
 
 *You can see more different options* [here](https://www.autotrader.co.za/cars-for-sale?gclid=Cj0KCQiA-YvMBhDtARIsAHZuUzJ9DJNuf4XXR8qZAd9I_B0cowXqTwVqu07MkmHhciabZEu1R_Z81_4aAkgPEALw_wcB)
 
-```{r cars_summary, echo=FALSE}
-summary(cars)
+```{r cars_summary, echo=FALSE,fig.align='left', warning=FALSE}
+summary_of_cars <- summary(cars)
+knitr::kable(summary_of_cars)
+reactable::reactable(summary_of_cars) # output other table forms we can use reactable, gt or flextable packages
 ```
 
 # Car Perfomance Plots
 
 **This is the plot for cars**:
 
-```{r cars_plot, echo=FALSE}
+```{r cars_plot, echo=FALSE,fig.width=10,fig.align='left',}
 plot(cars)
 ```
-
-
