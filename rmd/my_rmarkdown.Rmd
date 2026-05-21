@@ -13,10 +13,10 @@ knitr::opts_chunk$set(echo = FALSE)
 # e.g echo = FALSE hides the R code and shows only the output/results. for all chunks
 # message = FALSE , to avoid package startup messages
 
-if (!require(pacman))
+if (!require(pacman))  # checks if pacman is installed
   install.packages("pacman") # if pacman doesnt exist on this machine install it
-pacman::p_load(
-  tidyverse, #meta-pakage , it loads other packages inside of it
+pacman::p_load( # installs and loads packages
+  tidyverse, 
   inspectdf,
   plotly,
   janitor,
@@ -27,16 +27,86 @@ pacman::p_load(
   dplyr,
   flextable,
   gt,
-  reactable
+  reactable,
+  lubridate,
+  Sleuth3
    )
 
+
+
 # load_data
+irs <- read_csv(here("data/Illovo_data.csv"))
+irs
+
+incidence_temp <- read_csv(here("data/Illovo_ir_weather.csv"))
+incidence_temp
+
+weather <- read_csv(here("data/Illovo_weather.csv"))
+weather
 
 yaounde_data <- read_excel(here("data/yaounde_data.xlsx"))
-ebola_sierra_leone <- read.csv(here("data", "ebola_sierra_leone.csv"))
 yaounde_data
+
+ebola_sierra_leone <- read.csv(here("data", "ebola_sierra_leone.csv"))
 ebola_sierra_leone
 ```
+
+# Manipulate Dates using base R vs using the interval operator from lubridate package
+
+```{r}
+date_1 <- as.Date("2020-01-01")
+date_2 <- as.Date("2020-01-31")
+
+#subtract the dates using Base R
+as.numeric(date_2 - date_1) # using as.numeric so as to return just a number
+
+# Use the interval operator %--%
+date_2 %--% date_1 # this creates and returns an interval e.g 30-day interval
+
+# dividing by days(1) will tell lubridate to count in increaments of one day at a time
+# (interval) / days(1) , basically we are saying , How many 1-day units fit into this interval?
+(date_1 %--% date_2) / days(1)
+
+(date_1 %--% date_2) / weeks(1) # how many weeks are between the two dates
+
+
+# TASK 1: Apply the lubridate interval function to the IRS dataset by creating a new column called spraying_time , use the interval operator
+
+irs %>%
+  mutate(
+    start_date = as.Date(start_date_default),
+    end_date = as.Date(end_date_default),
+    spraying_time = as.numeric((start_date %--% end_date) / days(1))
+  ) %>%
+  select(start_date, end_date, spraying_time)
+
+# EXTRACTING DATE COMPONENTS
+# PLOTTING 
+# TASK2:  create variables called wday_start and Spray_month_started by extracting the day of the week and month ,written out rather than numerically
+irs %>%
+  mutate(
+    wday_start = wday(end_date_default, label = TRUE),
+    Spray_month_started = month(end_date_default, label = TRUE),
+    Spray_year = year(start_date_default)
+  ) %>%
+  
+ggplot() +
+geom_bar(aes(x= Spray_month_started))  
+
+
+
+irs %>%
+  mutate(Spray_month_ended = month(end_date_default, label = TRUE)
+  ) %>%
+  
+ggplot() +
+geom_bar(aes(x= Spray_month_ended))  
+
+
+```
+
+
+
 
 # Sierra_leone Ebola Cases by District
 
@@ -63,6 +133,9 @@ categ_vars_plot <- show_plot(inspectdf::inspect_cat(ebola_sierra_leone)) +
   labs(title = "Categorical Variables in Ebola Dataset")
 
 plotly::ggplotly(categ_vars_plot)
+
+ggplot(ebola_sierra_leone) +
+geom_bar(aes(x= district))  
 ```
 
 # Sierra_leone Car Analysis
@@ -87,4 +160,6 @@ reactable::reactable(summary_of_cars) # output other table forms we can use reac
 
 ```{r cars_plot, echo=FALSE,fig.width=10,fig.align='left',}
 plot(cars)
+
+
 ```
