@@ -6,7 +6,7 @@ editor_options:
   chunk_output_type: console # display chunk output in console style instead of inline notebook style.
 ---
 
-```{r setup, include=FALSE, message=FALSE}  
+```{r setup, include=FALSE, message=FALSE, warning = FALSE}  
 knitr::opts_chunk$set(echo = FALSE)  
 # Global chunk option:
 # settings defined here apply to all subsequent chunks unless overridden.
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 if (!require(pacman))  # checks if pacman is installed
   install.packages("pacman") # if pacman doesnt exist on this machine install it
-pacman::p_load( # installs and loads packages
+suppressPackageStartupMessages({pacman::p_load( # installs and loads packages
   tidyverse, 
   inspectdf,
   plotly,
@@ -23,15 +23,14 @@ pacman::p_load( # installs and loads packages
   visdat,
   esquisse,
   here,
-  readxl, 
-  dplyr,
+  readxl,
   flextable,
   gt,
   reactable,
   lubridate,
-  Sleuth3
-   )
-
+  Sleuth3,
+  Sleuth2
+   )})
 
 
 # load_data

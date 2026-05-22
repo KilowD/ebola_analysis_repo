@@ -3,3 +3,63 @@ title: "LearnR"
 output: html_document
 ---
 
+```{r setup, include=FALSE, message=FALSE, warning = FALSE}  
+knitr::opts_chunk$set(echo = FALSE)  
+# Global chunk option:
+# settings defined here apply to all subsequent chunks unless overridden.
+# e.g echo = FALSE hides the R code and shows only the output/results. for all chunks
+# message = FALSE , to avoid package startup messages
+
+if (!require(pacman))  # checks if pacman is installed
+  install.packages("pacman") # if pacman doesnt exist on this machine install it
+suppressPackageStartupMessages({pacman::p_load( # installs and loads packages
+  tidyverse, 
+  inspectdf,
+  plotly,
+  janitor,
+  visdat,
+  esquisse,
+  here,
+  readxl,
+  flextable,
+  gt,
+  reactable,
+  lubridate,
+  Sleuth3,
+  Sleuth2
+   )})
+
+
+family <- data.frame(
+  Names = c('Derek', 'Aubrey', 'Elise', 'Casey'),
+  Age   = c(42, 39, 6, 3),
+  Height.in = c(64, 66, 43, 39) 
+)
+
+# the readr package doesn’t care whether a file is on your local computer or on the Internet
+Example_1 <- read_csv("https://raw.githubusercontent.com/dereksonderegger/570L/master/data-raw/Example_1.csv")
+
+```
+
+# Manipulate dataframe
+```{r}
+# get the third oldest person, include the mean Age
+family%>%
+  arrange(-Age)%>%
+  mutate(avg_family_age = mean(Age))%>%
+  slice(3)
+
+f <- family%>%
+  arrange(-Age)%>%
+  mutate(avg_family_age = mean(Age))%>%
+  .[3,]  # The dot . represents the piped data frame.
+f
+
+Example_1%>%
+  slice_head(n=5)
+  
+```
+
+
+
+
