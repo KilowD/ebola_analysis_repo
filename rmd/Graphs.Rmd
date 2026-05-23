@@ -1,0 +1,136 @@
+---
+title: "Graphs"
+output: html_document
+---
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)  
+# Global chunk option:
+# settings defined here apply to all subsequent chunks unless overridden.
+# e.g echo = FALSE hides the R code and shows only the output/results. for all chunks
+# message = FALSE , to avoid package startup messages
+
+if (!require(pacman))  # checks if pacman is installed
+  install.packages("pacman") # if pacman doesnt exist on this machine install it
+suppressPackageStartupMessages({pacman::p_load( # installs and loads packages
+  tidyverse, 
+  inspectdf,
+  plotly,
+  janitor,
+  visdat,
+  esquisse,
+  here,
+  readxl,
+  flextable,
+  gt,
+  reactable,
+  lubridate,
+  Sleuth3,
+  Sleuth2,
+  reshape
+   )})
+```
+
+# To make graphs with ggplot2, the data must be in a data frame
+
+```{r}
+        # use FACTOR so as to define the order of the categories
+        # Without factor ordering, categories may appear alphabetically.
+dat <- data.frame(
+    time = factor(c("Lunch","Dinner"), levels=c("Lunch","Dinner")), 
+    total_bill = c(14.89, 17.23)
+)
+
+# BAR GRAPHS OF VALUES 
+
+# Very basic bar graph
+# Assign different fill colors based on the categories in time.
+# Add a black outline on the bars
+# the height of the bar will represent the value in a column of the data frame , by using stat="identity"
+
+ggplot(data=dat, aes(x=time, y=total_bill, fill=time)) +
+    geom_bar(colour="black", width=.3,stat="identity") + 
+    guides(fill="none") + # No legend 
+    ggtitle("Average bill for 2 people")
+
+
+# BAR GRAPHS OF COUNTS
+
+# the height of the bar will represent the count of cases. This is done by using stat="bin" (which is the default).
+# Will use the TIPS data from RESHAPE Package
+
+str(tips)
+ggplot(data=tips, aes(x=day, fill = day)) +
+    geom_bar(colour="black", width=.6, stat="count") + # same as geom_bar(colour="black", width=.8) since stat="bin" is the default
+    guides(fill="none") + # No legend
+    xlab("Day of the Week") + ylab("Total Count") 
+
+
+# Basic line graph
+
+# Change color of both line and points
+# Change line type and point type, and use thicker line and larger points
+# Change points to circles with black fill
+# the data points must be grouped so that it knows which points to connect.All points should be connected, so group=1
+ggplot(data=dat, aes(x=time, y=total_bill, group=1)) + 
+    geom_line(colour="red", linetype="dashed", size=1.3) + 
+    geom_point(colour="red", size=4, shape=21, fill="black")+ 
+    expand_limits(y=0) +
+    xlab("Time of day") + ylab("Total bill") +
+    ggtitle("Average bill for 2 people")
+
+
+```
+
+```{r}
+# GRAPHS WITH MORE VARIABLES
+
+dat1 <- data.frame(
+    sex = factor(c("Female","Female","Male","Male"), levels = c("Female","Male")),
+    time = factor(c("Lunch","Dinner","Lunch","Dinner"), levels=c("Lunch","Dinner")),
+    total_bill = c(13.53, 16.81, 16.24, 17.42)
+)
+
+
+
+# BAR GRAPHS
+
+# Bar graph, time on x-axis, color fill grouped by sex 
+# use position_dodge() to tell ggplot “Place bars for different groups side-by-side instead of stacking them"
+# color fill  GROUPED BY TIME
+
+ggplot(data=dat1, aes(x=time, y=total_bill, fill=sex)) +
+    geom_bar(color = "black",width =.6,stat="identity", position=position_dodge()) + 
+    scale_fill_hue(name="Sex of payer") +      # Set legend title 
+    xlab("Time of day") + ylab("Total bill") +
+    ggtitle("Average bill for 2 people") 
+
+# Color fill GROUPED BY SEX
+
+ggplot(data=dat1, aes(x=sex, y=total_bill, fill=time)) +
+    geom_bar(color = "black",width =.6,stat="identity", position=position_dodge()) + 
+    scale_fill_hue(name="Time of Day") +      # Set legend title
+    xlab("Time of day") + ylab("Total bill") +
+    ggtitle("Average bill for 2 people")
+
+
+# LINE GRAPHS
+
+ggplot(data=dat1, aes(x=time, y=total_bill, group=sex, shape=sex, colour=sex)) + 
+    geom_line(aes(linetype=sex), size=1) +     # Set linetype by sex
+    geom_point(size=3, fill="white") +         # Use larger points, fill with white
+    expand_limits(y=0) +                       # Set y range to include 0
+    scale_colour_hue(name="Sex of payer",      # Set legend title
+                     l=30)  +                  # Use darker colors (lightness=30)
+    scale_shape_manual(name="Sex of payer",
+                       values=c(22,21)) +      # Use points with a fill color
+    scale_linetype_discrete(name="Sex of payer") +
+    xlab("Time of day") + ylab("Total bill") + # Set axis labels
+    ggtitle("Average bill for 2 people") +     # Set title
+    theme_bw() +
+    theme(legend.position=c(.7, .4))           # Position legend inside
+                                               # This must go after theme_bw
+
+```
+
+

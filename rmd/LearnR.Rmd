@@ -26,7 +26,8 @@ suppressPackageStartupMessages({pacman::p_load( # installs and loads packages
   reactable,
   lubridate,
   Sleuth3,
-  Sleuth2
+  Sleuth2,
+  reshape
    )})
 
 
@@ -35,9 +36,22 @@ family <- data.frame(
   Age   = c(42, 39, 6, 3),
   Height.in = c(64, 66, 43, 39) 
 )
-
+family
 # the readr package doesn’t care whether a file is on your local computer or on the Internet
 Example_1 <- read_csv("https://raw.githubusercontent.com/dereksonderegger/570L/master/data-raw/Example_1.csv")
+
+data(iris) 
+head(iris)
+
+data("tips")
+slice_head(tips,n=5)
+
+a <- sample(1:100,15)
+b <- sample(1000:2000,15)
+c <- sample(letters,15)
+
+df <- data.frame(a,b,c)
+
 
 ```
 
@@ -57,7 +71,76 @@ f
 
 Example_1%>%
   slice_head(n=5)
-  
+
+
+
+# add a row
+df <- rbind(df,c(50,1050,"x"))
+df
+
+
+# Add a new column
+e <-  sample(100000:200000,15)
+df <- cbind(df,e)
+df
+
+
+
+dff <- df %>%
+  rename(
+    first = a,
+    second = b,
+    third = c,
+    fourth = e
+  )%>%
+  filter(first>50)
+dff
+
+
+# OR ....
+
+colnames(df)= c("i","ii","iii","iv")
+df
+
+dff <- subset(df,i >50)
+dff
+
+  ?ggplot2
+
+#esquisser(Example_1)
+
+ggplot2(Example_1) +
+  aes(x = Height) +
+  geom_density(adjust = 1L, fill = "#112446") +
+  theme_minimal()
+
+# Save the graph before I add more to it.
+P <-
+  ggplot( data=iris, aes(x=Sepal.Length, y=Petal.Length, color=Species) ) +  
+  geom_point( ) +
+  labs( title='Sepal Length vs Petal Length' ) +
+  labs( x="Sepal Length (cm)", y="Petal Length (cm)" ) +
+  labs( color="Species Name")  + 
+  labs( caption = "Iris data from Edgar Anderson (1935)" )
+
+# Print out the plot
+P +
+  annotate('text', x=4.5, y=2.25, size=3.5, color='#F8766D', label='SETOSA'     ) +
+  annotate('text', x=6.5, y=3.75, size=3.5, color='#00BA38', label='VERSICOLOR' ) +
+  annotate('text', x=7.0, y=6.50, size=3.5, color='#619CFF', label='VIRGINICA'  ) +
+  theme(legend.position = 'none')
+
+#Faceting
+# The goal is to make many panels of graphics where each panel represents the
+# same relationship between variables, BUT some group variables changes each panel
+# e.g using the iris data , one panel for each Species
+
+P <-
+  ggplot( data=iris, aes(x=Sepal.Length, y=Petal.Length, color=Species) ) +  
+  geom_point( ) +
+  #facet_wrap(~ Species)
+  facet_grid( cols = vars(Species) ) 
+P  
 ```
 
 
