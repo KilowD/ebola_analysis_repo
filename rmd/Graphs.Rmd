@@ -27,7 +27,8 @@ suppressPackageStartupMessages({pacman::p_load( # installs and loads packages
   lubridate,
   Sleuth3,
   Sleuth2,
-  reshape
+  reshape,
+  glue
    )})
 ```
 
@@ -82,8 +83,9 @@ ggplot(data=dat, aes(x=time, y=total_bill, group=1)) +
 
 ```
 
-```{r}
 # GRAPHS WITH MORE VARIABLES
+
+```{r}
 
 dat1 <- data.frame(
     sex = factor(c("Female","Female","Male","Male"), levels = c("Female","Male")),
@@ -133,4 +135,75 @@ ggplot(data=dat1, aes(x=time, y=total_bill, group=sex, shape=sex, colour=sex)) +
 
 ```
 
+# Plotting MEANS and ERROR BARS 
+
+```{r}
+#load dataset
+ToothGrowth
+
+# set primary colors to use
+
+OJ_Color <- "#BEBEBE"
+VC_Color <- "#0000FF"
+
+# Summarize the data
+tgc <- ToothGrowth %>%
+  group_by(supp, dose) %>%
+  summarise(
+    N = n(),
+    mean_len = mean(len, na.rm = TRUE),
+    sd_len = sd(len, na.rm = TRUE),
+    se = sd_len / sqrt(N),
+    .groups = "drop"
+  )
+
+# LINE graphs
+
+# Standard error of the mean
+
+# to prevent the errorbars that share the same point from overlapping, use POSITION_DODGE to move them horizontally apart
+pd <- position_dodge(0.1) # move grouped elements slightly side-by-side
+
+# Blue error bars - notice the mapping of 'group=supp' -- without it, the error bars won't be dodged! (moved apart)
+
+ggplot(tgc, aes(x=dose, y=mean_len, colour=supp, group = supp)) + 
+    theme_classic() +
+    geom_errorbar(aes(ymin=mean_len-se, ymax=mean_len+se),colour=VC_Color, width=.1 , position = pd) +
+    geom_line(position=pd) +
+    geom_point(position=pd, size = 2) +
+    labs(x=NULL, y="Tooth Length") + # remove the X-axis LABEL
+    scale_colour_hue(name="Supplement type",    # Legend label, use darker colors
+                     breaks=c("OJ", "VC"),
+                     labels=c("Orange juice", "Ascorbic acid"),
+                     l=40) +                    # Use darker colors, lightness=40
+    ggtitle("The Effect of Vitamin C on\nTooth Growth in Guinea Pigs") +
+    expand_limits(y=0) +                        # Expand y range
+    scale_y_continuous(breaks=0:20*4) +         # Set tick scale every 4
+    theme(legend.justification=c(1,0),
+          legend.position=c(1,0))               # Position legend in bottom right
+
+
+# BAR GRAPHS
+
+# Use dose as a factor rather than numeric
+tgc2 <- tgc
+tgc2$dose <- factor(tgc2$dose)
+
+
+
+ggplot(tgc2, aes(x=dose, y=mean_len, fill=supp)) + 
+    theme_classic() +
+    geom_bar(position=position_dodge(), stat="identity") +
+    geom_errorbar(aes(ymin=mean_len-se, ymax=mean_len+se),colour="black", size=.3, width=.1, position=position_dodge(.9)) +
+    labs(x=NULL, y="Tooth Length") + # remove the X-axis LABEL
+    scale_fill_hue(name="Supplement type",    # Legend label, use darker colors
+                     breaks=c("OJ", "VC"),
+                     labels=c("Orange juice", "Ascorbic acid"),
+                     l=40) +                    # Use darker colors, lightness=40
+    ggtitle("The Effect of Vitamin C on\nTooth Growth in Guinea Pigs") +
+    expand_limits(y=0) +                        # Expand y range
+    scale_y_continuous(breaks=0:20*4)         # Set tick scale every 4
+  
+
+```
 
