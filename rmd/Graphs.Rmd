@@ -50,8 +50,8 @@ dat <- data.frame(
 # the height of the bar will represent the value in a column of the data frame , by using stat="identity"
 
 ggplot(data=dat, aes(x=time, y=total_bill, fill=time)) +
-    geom_bar(colour="black", width=.3,stat="identity") + 
-    guides(fill="none") + # No legend 
+    geom_bar(colour="black", width=.3,stat="identity", show.legend = FALSE) +  # No legend 
+    #guides(fill="none") + # No legend 
     ggtitle("Average bill for 2 people")
 
 
@@ -205,5 +205,40 @@ ggplot(tgc2, aes(x=dose, y=mean_len, fill=supp)) +
     scale_y_continuous(breaks=0:20*4)         # Set tick scale every 4
   
 
+```
+
+```{r}
+set.seed(1234)
+dat <- data.frame(cond = factor(rep(c("A","B"), each=200)), 
+                   rating = c(rnorm(200),rnorm(200, mean=.8)))
+
+## Basic histogram from the vector "rating". Each bin is .5 wide.
+# Draw with black outline, white fill
+ggplot(dat, aes(x=rating,fill=cond)) +
+    geom_histogram(binwidth=.5, colour="black",position="dodge") + # place grouped objects side-by-side instead of overlapping.
+    geom_vline(aes(xintercept=mean(rating, na.rm=T)),   # Add a line for mean and Ignore NA values for mean
+               color="brown", linetype="dashed", size=1)
+
+# Density curve
+ggplot(dat, aes(x=rating,fill=cond)) + 
+  geom_density(alpha=.3) + # alpha determines how opaque or transparent plot elements are.
+  ggtitle("Distribution per Team") +
+      theme(plot.title = element_text(lineheight=.8, face="bold")) + # Reduce line spacing and use bold text
+  scale_fill_hue(name="Team Name",    # Legend label, use darker colors
+                     breaks=c("A", "B"),
+                     labels=c("LIVERPOOL", "MADRID"),
+                     l=40)                    # Use darker colors, lightness=40
+
+# FACETS , split the graphs based on a variable
+
+ggplot(dat, aes(x=rating,fill=cond)) + 
+  geom_density(alpha=.3) + # alpha determines how opaque or transparent plot elements are.
+  ggtitle("Distribution per Team") +
+  facet_grid(. ~ cond) +
+      theme(plot.title = element_text(lineheight=.8, face="bold")) + # Reduce line spacing and use bold text
+  scale_fill_hue(name="Team Name",    # Legend label, use darker colors
+                     breaks=c("A", "B"),
+                     labels=c("LIVERPOOL", "MADRID"),
+                     l=40)   
 ```
 
