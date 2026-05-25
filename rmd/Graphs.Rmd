@@ -3,7 +3,7 @@ title: "Graphs"
 output: html_document
 ---
 
-```{r}
+```{r setup, include=FALSE, message=FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = FALSE)  
 # Global chunk option:
 # settings defined here apply to all subsequent chunks unless overridden.
@@ -28,13 +28,14 @@ suppressPackageStartupMessages({pacman::p_load( # installs and loads packages
   Sleuth3,
   Sleuth2,
   reshape,
-  glue
+  glue,
+  MASS
    )})
 ```
 
 # To make graphs with ggplot2, the data must be in a data frame
 
-```{r}
+```{r echo = FALSE, warning=FALSE}
         # use FACTOR so as to define the order of the categories
         # Without factor ordering, categories may appear alphabetically.
 dat <- data.frame(
@@ -60,7 +61,7 @@ ggplot(data=dat, aes(x=time, y=total_bill, fill=time)) +
 # the height of the bar will represent the count of cases. This is done by using stat="bin" (which is the default).
 # Will use the TIPS data from RESHAPE Package
 
-str(tips)
+
 ggplot(data=tips, aes(x=day, fill = day)) +
     geom_bar(colour="black", width=.6, stat="count") + # same as geom_bar(colour="black", width=.8) since stat="bin" is the default
     guides(fill="none") + # No legend
@@ -85,7 +86,7 @@ ggplot(data=dat, aes(x=time, y=total_bill, group=1)) +
 
 # GRAPHS WITH MORE VARIABLES
 
-```{r}
+```{r echo = FALSE, warning=FALSE}
 
 dat1 <- data.frame(
     sex = factor(c("Female","Female","Male","Male"), levels = c("Female","Male")),
@@ -137,9 +138,9 @@ ggplot(data=dat1, aes(x=time, y=total_bill, group=sex, shape=sex, colour=sex)) +
 
 # Plotting MEANS and ERROR BARS 
 
-```{r}
+```{r echo = FALSE, warning=FALSE}
 #load dataset
-ToothGrowth
+data(ToothGrowth)
 
 # set primary colors to use
 
@@ -207,7 +208,7 @@ ggplot(tgc2, aes(x=dose, y=mean_len, fill=supp)) +
 
 ```
 
-```{r}
+```{r echo = FALSE, warning=FALSE}
 set.seed(1234)
 dat <- data.frame(cond = factor(rep(c("A","B"), each=200)), 
                    rating = c(rnorm(200),rnorm(200, mean=.8)))
@@ -241,4 +242,121 @@ ggplot(dat, aes(x=rating,fill=cond)) +
                      labels=c("LIVERPOOL", "MADRID"),
                      l=40)   
 ```
+
+# Exercises
+
+```{r echo = FALSE, warning=FALSE}
+# Examine the dataset trees, which should already be pre-loaded. Look at the help file using ?trees for more information about this data set. We wish to build a scatter plot that compares the height and girth of these cherry trees to the volume of lumber that was produced.
+# 
+# Create a graph using ggplot2 with Height on the x-axis, Volume on the y-axis, and Girth as the either the size of the data point or the color of the data point. Which do you think is a more intuitive representation?
+# Add appropriate labels for the main title and the x and y axes.
+# The R-squared value for a regression through these points is 0.36 and the p-value for the statistical significance of height is 0.00038. Add text labels “R-squared = 0.36” and “p-value = 0.0004” somewhere on the graph.
+
+#load dataset
+data(trees)
+ggplot(trees,aes(x=Height,y=Volume, color = Girth)) +
+  geom_point(color = "brown")+
+  expand_limits(y=0) +
+  ggtitle("Scatter plot for Cherry trees heights vs tree volume") +
+  labs(x= "Tree Height", y= "Tree Volume") +
+  annotate("label", x = min(trees$Height), y = max(trees$Volume) + 5
+                           ,label = "R-squared = 0.36",color = "black", hjust = 0,fontface = "bold")  +
+  annotate("label",x = min(trees$Height), y = max(trees$Volume) - 1
+                           ,label = "P-value = 0.0004",color = "black",  hjust = 0,fontface = "bold")  +
+  theme_classic() +
+  theme(legend.position = 'none') # remove legend
+  
+
+```
+
+
+```{r echo = FALSE, warning=FALSE}
+
+Rosy <- data.frame(
+  times = c(15, 11, 9, 12, 5, 2, 3),
+  day   = 1:7,
+  yhat  = c(14.36, 12.29, 10.21, 8.14, 6.07, 4.00,  1.93),
+  lwr   = c( 9.54,  8.5,   7.22, 5.47, 3.08, 0.22, -2.89),
+  upr   = c(19.18, 16.07, 13.2, 10.82, 9.06, 7.78,  6.75))
+
+# Using ggplot() and geom_point(), create a scatterplot with day along the x-axis and times along the y-axis.
+
+# Add a line to the graph where the x-values are the day values but now the y-values are the predicted values which we’ve called yhat. Notice that you have to set the aesthetic y=times for the points and y=yhat for the line. Because each geom_ will accept an aes() command, you can specify the y attribute to be different for different layers of the 
+
+ggplot(Rosy,aes(x=day)) +
+  geom_point(aes(y=times))+
+  geom_line(aes(y=yhat), color = "brown") +
+  expand_limits(y=0) +
+  theme_classic() +
+  theme(legend.position = 'none') # remove legend
+
+# Add a ribbon that represents the confidence region of the regression line. The geom_ribbon() function requires an x, ymin, and ymax columns to be defined
+
+ggplot(Rosy,aes(x=day)) +
+geom_point(aes(y=times)) +
+geom_line(aes(y=yhat), color = "blue") +
+geom_ribbon( aes(ymin=lwr, ymax=upr), fill='forestgreen',alpha = 0.4) + # put some transparency of 0.4 to the band OR re-order and start with geom_ribbon first
+expand_limits(y=0) +
+ggtitle("Confidence Region Around the Regression Line") +
+  labs(x= "Day of the week", y = "Time Played" ) +
+theme_classic() +
+theme(legend.position = 'none') # remove legend
+
+```
+
+```{r echo = FALSE, warning=FALSE}
+data(birthwt, package='MASS')
+
+# add better labels to the race and smoke variables
+birthwt <- birthwt %>% 
+  mutate(
+  race  = factor(race, levels = c(1, 2, 3), labels=c('White','Black','Other')),
+  smoke = factor(smoke,levels = c(0, 1), labels=c('No Smoke', 'Smoke')))
+
+# Graph a histogram of the birth weights bwt using ggplot(birthwt, aes(x=bwt)) + geom_histogram()
+# Make separate graphs that denote whether a mother smoked during pregnancy by appending + facet_grid()
+# Make your grid of graphs vary with SMOKING STATUS changing vertically, and RACE changing horizontally (that is the formula in facet_grid() should have smoking be the y variable and race as the x).
+
+ggplot(birthwt,aes(x=bwt, fill = smoke)) + 
+  geom_histogram(color = "black") +
+  labs(x="Birth Weight", y = "Count") +
+  facet_grid(rows = vars(race), cols = vars(smoke)) +
+  theme_bw() +
+  scale_fill_hue(name="Smoking Status",    # Legend label, use darker colors
+                     breaks=c("No Smoke", "Smoke"),
+                     labels=c("Mothers Who Did Not Smoke", "Mothers Who Smoked"),
+                     l=40)  
+  
+# Remove race from the facet grid
+# Add the estimated smooth density using the geom_density() command
+
+ggplot(birthwt,aes(x=bwt, fill = smoke)) +
+  geom_histogram(aes(y = after_stat(density)),color = "black", alpha =0.5) + 
+  geom_density(alpha = 0.2 , color = "blue") +
+  labs(x="Birth Weight", y = "Density") +
+  facet_grid(smoke ~ .) + # VERTICAL facet layout vs  (.~ smoke) HORIZONTAL
+  theme_bw() +
+  scale_fill_hue(name="Smoking Status",    # Legend label, use darker colors
+                     breaks=c("No Smoke", "Smoke"),
+                     labels=c("Mothers Who Did Not Smoke", "Mothers Who Smoked"),
+                     l=40)  
+```
+
+```{r echo = FALSE, warning=FALSE}
+
+data(ChickWeight)
+
+
+# Produce a separate scatter plot of weight vs age for each chick. Use color to distinguish the four different Diet treatments.
+
+ggplot(ChickWeight, aes(x =Time, y = weight , group=Chick , color = Diet)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~ Diet) +
+  labs(x="Age") +
+  theme_classic() +
+  scale_color_hue(name="Diet",    # Legend label, use darker colors
+                     breaks=c("1", "2", "3", "4"),
+                     labels=c("Standard Feed", "High Protein", "Vitamin Supplement", "Enhanced Growth" ),
+                     l=40)  
 
