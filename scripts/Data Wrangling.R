@@ -24,9 +24,10 @@ suppressPackageStartupMessages({pacman::p_load( # installs and loads packages
   Sleuth3,
   Sleuth2,
   reshape,
-  glue,
-  dplyr
+  glue
 )})
+
+options(dplyr.summarise.inform = FALSE)
 
 # Create a tiny data frame that is easy to see what is happening
 Mentors <- tribble(
@@ -132,7 +133,7 @@ people <- people %>%
   mutate( party = case_when( party == 1 ~ 'Democratic',  # if party==1 then Democartic...else default to 'None Stated'
                              party == 2 ~ 'Republican', 
                              party == 3 ~ 'Independent',
-                             TRUE       ~ 'None Stated' ) )
+                             TRUE       ~ 'None Stated' ) ) # Often the last case is a catch all case
 people
 
 
