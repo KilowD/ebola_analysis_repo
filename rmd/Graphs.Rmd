@@ -346,13 +346,21 @@ ggplot(birthwt,aes(x=bwt, fill = smoke)) +
 
 data(ChickWeight)
 
+ChickWeight <- ChickWeight %>%
+  mutate(
+    Diets = factor(
+      Diet,
+      levels = c(1, 2, 3, 4),
+      labels=c("Standard Feed", "High Protein", "Vitamin Supplement", "Enhanced Growth" )
+    )
+  )
 
 # Produce a separate scatter plot of weight vs age for each chick. Use color to distinguish the four different Diet treatments.
 
 ggplot(ChickWeight, aes(x =Time, y = weight , group=Chick , color = Diet)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~ Diet) +
+  facet_wrap(~ Diets) +
   labs(x="Age") +
   theme_classic() +
   scale_color_hue(name="Diet",    # Legend label, use darker colors

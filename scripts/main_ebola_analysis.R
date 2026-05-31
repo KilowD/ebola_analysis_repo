@@ -82,10 +82,9 @@ boxplot(age_vec)
 # esquisse::esquisser(ebola_sierra_leone)..JUST USE it to generate producible CODE below
 
 # the CODE below is generated after running esquisser(ebola_sierra_leone)
-ggplot(ebola_sierra_leone) +
-  aes(x = age) +
+ggplot(ebola_sierra_leone,aes(x = age)) +
   geom_density(adjust = 1L, fill = "#112446") +
-  theme_minimal()
+  theme_classic() 
 
 
 
@@ -151,10 +150,9 @@ df %>%
   arrange(year_month)
 
 # OR 
-ggplot(ebola_sierra_leone) +
-  aes(x = date_of_onset) +
-  geom_bar(fill = "#112446") +
-  theme_minimal()
+ggplot(ebola_sierra_leone, aes(x = date_of_onset)) +
+  geom_bar(fill = "#112446", alpha =0.5) +
+  theme_classic()
 
 
 # Cases by district ----
